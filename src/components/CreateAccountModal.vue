@@ -22,7 +22,14 @@
 
       <n-text :type="validation.status">{{ validation.message }}</n-text>
 
-      <n-text type="warning">Make sure you save the private key</n-text>
+      <n-space>
+        <n-switch v-model:value="keyWillBeSaved" />
+        <n-text>Save key as file</n-text>
+      </n-space>
+
+      <n-text :type="keyWillBeSaved ? 'primary' : 'warning'">
+        {{ keyWillBeSaved ? 'Private key will be saved as a file on account creating ' : 'Make sure you copy and save the private key' }}
+      </n-text>
     </n-space>
 
     <template #footer>
@@ -38,11 +45,12 @@
 </template>
 
 <script setup lang="ts">
-import { NModal, NInput, NButton, NText, NSpace, useMessage } from 'naive-ui';
+import { NModal, NInput, NButton, NText, NSpace, NSwitch, useMessage } from 'naive-ui';
 import { computed, ref } from 'vue';
 import { useAccounts, useDomains } from '@/composables/data';
 import { KeyPair, useIroha } from '@/composables/iroha';
 import { useValidator } from '@/composables/validation';
+import { saveFile } from '@/lib/file';
 
 const domains = useDomains();
 const accounts = useAccounts();
@@ -54,8 +62,9 @@ const show = ref(false);
 const name = ref('');
 const keys = ref<KeyPair | null>(null);
 const keyHasCopied = ref(false);
+const keyWillBeSaved = ref(true);
 
-const disabled = computed(() => !keyHasCopied.value || validation.value.status !== 'success');
+const disabled = computed(() => (!keyHasCopied.value && !keyWillBeSaved.value) || validation.value.status !== 'success');
 
 const existance = computed(() => accounts.list.value
   .some(a => a.name === name.value && domains.active.value === a.domain),
@@ -86,6 +95,19 @@ function create() {
     domain: domains.active.value,
     signatories,
   });
+
+  if (keyWillBeSaved.value) {
+    if (!keys.value) {
+      message.error('Private key is not available');
+      return;
+    }
+
+    saveFile(
+      keys.value.private,
+      `${name.value}__${domains.active.value}.hex.key`,
+      'application/octet-stream',
+    );
+  }
 
   show.value = false;
 }

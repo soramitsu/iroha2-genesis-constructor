@@ -55,6 +55,14 @@ function clearAll() {
   mints.value = [];
 }
 
+function resetActiveDomain() {
+  if (domains.value.length) {
+    activeDomainName.value = domains.value[0].name;
+  } else {
+    activeDomainName.value = '';
+  }
+}
+
 // ---domains---
 
 function createDomain(domain: Domain) {
@@ -66,6 +74,7 @@ function removeDomain(name: string) {
   accounts.value = accounts.value.filter(a => a.domain !== name);
   assets.value = assets.value.filter(a => a.domain !== name);
   mints.value = mints.value.filter(m => m.asset.domain !== name && m.account.domain !== name);
+  resetActiveDomain();
 }
 
 export function useDomains() {
@@ -359,6 +368,7 @@ export function useJsonData() {
       try {
         clearAll();
         parseJsonData(JSON.parse(json));
+        resetActiveDomain();
       } catch (e) {
         domains.value = backup.domains;
         accounts.value = backup.accounts;

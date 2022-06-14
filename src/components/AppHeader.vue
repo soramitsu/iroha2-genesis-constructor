@@ -9,11 +9,21 @@
         </n-button>
       </n-upload>
 
-      <n-button type="info" ghost @click="copy">
+      <n-button
+        type="info"
+        ghost
+        tabindex="0"
+        @click="copy"
+      >
         Copy JSON
       </n-button>
 
-      <n-button type="info" ghost @click="save">
+      <n-button
+        type="info"
+        ghost
+        tabindex="0"
+        @click="save"
+      >
         Save as JSON
       </n-button>
     </n-space>
@@ -24,6 +34,7 @@
 import { NButton, NSpace, NH1, NUpload, UploadInst, UploadFileInfo, useDialog, useMessage } from 'naive-ui';
 import { ref } from 'vue';
 import { useJsonData } from '@/composables/data';
+import { readFile, saveFile } from '@/lib/file';
 
 const data = useJsonData();
 const dialog = useDialog();
@@ -31,27 +42,8 @@ const message = useMessage();
 
 const upload = ref<UploadInst | null>(null);
 
-function readFromFile(file: File) {
-  if (file.type !== 'application/json') {
-    message.error('Wrong file type');
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.readAsText(file);
-
-  reader.onload = () => {
-    try {
-      data.set(reader.result as string);
-    } catch (e) {
-      message.error('Data parsing error');
-      console.error(e);
-    }
-  };
-}
-
-function handleUpload(_data: { file: UploadFileInfo }) {
-  const { file } = _data.file;
+function handleUpload(uploadData: { file: UploadFileInfo }) {
+  const { file } = uploadData.file;
   if (!file) return;
 
   dialog.warning({
@@ -59,21 +51,15 @@ function handleUpload(_data: { file: UploadFileInfo }) {
     content: 'Active data will be deleted and replaced with the data from the file',
     positiveText: 'Ok',
     negativeText: 'Cancel',
-    onPositiveClick: () => readFromFile(file),
+
+    onPositiveClick: () => readFile(file, 'application/json')
+      .then(data.set)
+      .catch((e: Error) => message.error(e.message)),
   });
 }
 
 function save() {
-  const file = new Blob([data.get()], { type: 'application/json' });
-
-  const link = document.createElement('a');
-  const url = URL.createObjectURL(file);
-  link.setAttribute('href', url);
-  link.setAttribute('download', 'genesis.json');
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
-
+  saveFile(data.get(), 'genesis.json', 'application/json');
   message.success('Data has been copied');
 }
 
