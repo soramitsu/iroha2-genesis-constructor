@@ -17,6 +17,7 @@
       type="text"
       placeholder="Name"
       :status="validation.status === 'error' ? 'error' : undefined"
+      @keyup.enter="create"
     />
 
     <n-text :type="validation.status">{{ validation.message }}</n-text>

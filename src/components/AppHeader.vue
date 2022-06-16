@@ -31,31 +31,29 @@
 </template>
 
 <script setup lang="ts">
-import { NButton, NSpace, NH1, NUpload, UploadInst, UploadFileInfo, useDialog, useMessage } from 'naive-ui';
+import { NButton, NSpace, NH1, NUpload, UploadInst, UploadFileInfo, useMessage } from 'naive-ui';
 import { ref } from 'vue';
 import { useJsonData } from '@/composables/data';
 import { readFile, saveFile } from '@/lib/file';
+import { useDialogWrapper } from '@/composables/dialog';
 
 const data = useJsonData();
-const dialog = useDialog();
+const dialog = useDialogWrapper();
 const message = useMessage();
 
 const upload = ref<UploadInst | null>(null);
 
-function handleUpload(uploadData: { file: UploadFileInfo }) {
+async function handleUpload(uploadData: { file: UploadFileInfo }) {
   const { file } = uploadData.file;
   if (!file) return;
 
-  dialog.warning({
-    title: 'Confirm',
-    content: 'Active data will be deleted and replaced with the data from the file',
-    positiveText: 'Ok',
-    negativeText: 'Cancel',
+  const res = await dialog.confirm('Active data will be deleted and replaced with the data from the file');
 
-    onPositiveClick: () => readFile(file, 'application/json')
-      .then(data.set)
-      .catch((e: Error) => message.error(e.message)),
-  });
+  if (!res) return;
+
+  readFile(file, 'application/json')
+    .then(data.set)
+    .catch((e: Error) => message.error(e.message));
 }
 
 function save() {

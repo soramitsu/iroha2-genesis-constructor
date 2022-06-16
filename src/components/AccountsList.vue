@@ -14,26 +14,23 @@
 </template>
 
 <script setup lang="ts">
-import { NDataTable, DataTableColumns, NButton, NSpace, NH3, useDialog } from 'naive-ui';
+import { NDataTable, DataTableColumns, NButton, NSpace, NH3 } from 'naive-ui';
 import CreateAccountModal from './CreateAccountModal.vue';
 import MintsList from './MintsList.vue';
 import { Account, useAccounts, useDomains } from '@/composables/data';
 import { computed, h } from 'vue';
+import { useDialogWrapper } from '@/composables/dialog';
 
 const domains = useDomains();
 const accounts = useAccounts();
 const list = computed(() => accounts.filter(domains.active.value));
 
-const dialog = useDialog();
+const dialog = useDialogWrapper();
 
-function remove(name: string) {
-  dialog.warning({
-    title: 'Confirm',
-    content: 'The account and all data associated with it will be deleted',
-    positiveText: 'Ok',
-    negativeText: 'Cancel',
-    onPositiveClick: () => accounts.remove(name),
-  });
+async function remove(name: string) {
+  const res = await dialog.confirm('The account and all data associated with it will be deleted');
+  if (!res) return;
+  accounts.remove(name);
 }
 
 const columns: DataTableColumns<Account> = [

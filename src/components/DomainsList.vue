@@ -21,23 +21,20 @@
 </template>
 
 <script setup lang="ts">
-import { NTabs, NTabPane, useDialog } from 'naive-ui';
+import { NTabs, NTabPane } from 'naive-ui';
 import { ref } from 'vue';
 import CreateDomainModal from './CreateDomainModal.vue';
 import DomainDetail from './DomainDetail.vue';
 import { useDomains } from '@/composables/data';
+import { useDialogWrapper } from '@/composables/dialog';
 
-const dialog = useDialog();
+const dialog = useDialogWrapper();
 const domains = useDomains();
 const showCreateModel = ref(false);
 
-function remove(name: string) {
-  dialog.warning({
-    title: 'Confirm',
-    content: 'The domain and all data associated with it will be deleted',
-    positiveText: 'Ok',
-    negativeText: 'Cancel',
-    onPositiveClick: () => domains.remove(name),
-  });
+async function remove(name: string) {
+  const res = await dialog.confirm('The domain and all data associated with it will be deleted');
+  if (!res) return;
+  domains.remove(name);
 }
 </script>
