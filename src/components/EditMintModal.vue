@@ -5,14 +5,14 @@
     text
     @click="logic.show.value = true"
   >
-    Create Mint
+    Edit
   </n-button>
 
   <n-modal
     v-model:show="logic.show.value"
     preset="card"
     style="width: 600px"
-    title="Create Mint"
+    title="Edit Mint"
     :bordered="false"
     size="huge"
     @after-leave="logic.clear"
@@ -40,7 +40,7 @@
 
     <template #footer>
       <n-button type="primary" :disabled="logic.disabled.value" @click="logic.submit">
-        Create
+        Edit
       </n-button>
     </template>
   </n-modal>
@@ -48,21 +48,23 @@
 
 <script setup lang="ts">
 import { NModal, NSelect, NInputNumber, NButton, NSpace, NFormItem } from 'naive-ui';
-import { ref } from 'vue';
-import { Account } from '@/composables/data';
+import { ref, toRefs } from 'vue';
+import { Mint } from '@/composables/data';
 import { useMintModal } from '@/composables/mint-modal';
 
 type Props = {
-  account: Account,
+  mint: Mint,
 };
 
 const props = defineProps<Props>();
+const { mint } = toRefs(props);
 const valueEl = ref<InstanceType<typeof NInputNumber> | null>(null);
 const assetEl = ref<InstanceType<typeof NSelect> | null>(null);
 
 const logic = useMintModal({
-  account: props.account,
+  account: mint.value.account,
   valueEl,
   assetEl,
+  editMint: mint,
 });
 </script>

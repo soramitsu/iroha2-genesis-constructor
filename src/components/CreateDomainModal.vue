@@ -30,7 +30,7 @@
 import { NModal, NInput, NButton, NText } from 'naive-ui';
 import { computed, ref } from 'vue';
 import { useDomains } from '@/composables/data';
-import { useValidator } from '@/composables/validation';
+import { validateName } from '@/lib/validation';
 
 type Props = {
   show: boolean;
@@ -44,7 +44,6 @@ const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
 const domains = useDomains();
-const validator = useValidator();
 
 const show = computed<boolean>({
   get() {
@@ -58,7 +57,7 @@ const show = computed<boolean>({
 const name = ref('');
 
 const existence = computed(() => domains.list.value.some(d => d.name === name.value));
-const validation = computed(() => validator.name(name.value, existence.value));
+const validation = computed(() => validateName(name.value, existence.value));
 
 function create() {
   domains.create({ name: name.value });

@@ -34,11 +34,10 @@
 import { NModal, NInput, NButton, NText } from 'naive-ui';
 import { computed, ref } from 'vue';
 import { useAssets, useDomains } from '@/composables/data';
-import { useValidator } from '@/composables/validation';
+import { validateName } from '@/lib/validation';
 
 const domains = useDomains();
 const assets = useAssets();
-const validator = useValidator();
 
 const show = ref(false);
 const name = ref('');
@@ -47,7 +46,7 @@ const existence = computed(() => assets.list.value
   .some(a => a.name === name.value && domains.active.value === a.domain),
 );
 
-const validation = computed(() => validator.name(name.value, existence.value));
+const validation = computed(() => validateName(name.value, existence.value));
 
 function create() {
   assets.create({

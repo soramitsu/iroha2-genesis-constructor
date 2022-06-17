@@ -162,6 +162,16 @@ function createMint(blank: MintBlank) {
   mints.value.push(makeMint(blank));
 }
 
+function updateMint(key: string, blank: MintBlank) {
+  const index = mints.value.findIndex(m => m.key === key);
+
+  if (index !== -1) {
+    mints.value[index] = makeMint(blank);
+  } else {
+    mints.value.push(makeMint(blank));
+  }
+}
+
 function removeMint(key: string) {
   mints.value = mints.value.filter(m => m.key !== key);
 }
@@ -171,6 +181,7 @@ export function useMints() {
     list: mints,
     create: createMint,
     remove: removeMint,
+    update: updateMint,
   };
 }
 
@@ -221,7 +232,7 @@ function makeResultData() {
       object: {
         Raw: {
           Identifiable: {
-            AssetDefinition: {
+            NewAssetDefinition: {
               id: {
                 name: asset.name,
                 domain_id: {
@@ -340,8 +351,8 @@ function parseJsonData(data: any) {
         continue;
       }
 
-      if (Identifiable.AssetDefinition) {
-        handleJsonAsset(Identifiable.AssetDefinition);
+      if (Identifiable.NewAssetDefinition) {
+        handleJsonAsset(Identifiable.NewAssetDefinition);
         continue;
       }
 

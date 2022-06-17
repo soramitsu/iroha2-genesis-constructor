@@ -26,9 +26,3 @@ export function validateName(name: string, existence: boolean): ValidationResult
 
   return { status: 'success', message: 'Name is valid' };
 }
-
-export function useValidator() {
-  return {
-    name: validateName,
-  };
-}

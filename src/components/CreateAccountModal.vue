@@ -53,14 +53,13 @@ import { NModal, NInput, NButton, NText, NSpace, NRadio, NRadioGroup, useMessage
 import { computed, ref } from 'vue';
 import { useAccounts, useDomains } from '@/composables/data';
 import { KeyPair, useIroha } from '@/composables/iroha';
-import { useValidator } from '@/composables/validation';
+import { validateName } from '@/lib/validation';
 import { saveFile } from '@/lib/file';
 
 const domains = useDomains();
 const accounts = useAccounts();
 const iroha = useIroha();
 const message = useMessage();
-const validator = useValidator();
 
 const show = ref(false);
 const name = ref('');
@@ -73,7 +72,7 @@ const existance = computed(() => accounts.list.value
   .some(a => a.name === name.value && domains.active.value === a.domain),
 );
 
-const validation = computed(() => validator.name(name.value, existance.value));
+const validation = computed(() => validateName(name.value, existance.value));
 
 function openModal() {
   show.value = true;

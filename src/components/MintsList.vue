@@ -11,6 +11,8 @@
 
       <n-gi>
         <n-space justify="end">
+          <edit-mint-modal :mint="mint" />
+
           <n-button
             type="error"
             size="tiny"
@@ -30,6 +32,7 @@
 <script setup lang="ts">
 import { NButton, NSpace, NText, NA, NGrid, NGi } from 'naive-ui';
 import CreateMintModal from './CreateMintModal.vue';
+import EditMintModal from './EditMintModal.vue';
 import { Account, useDomains, useMints } from '@/composables/data';
 import { computed } from 'vue';
 
