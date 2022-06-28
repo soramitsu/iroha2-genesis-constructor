@@ -1,24 +1,36 @@
 <template>
-  <n-h2>{{ domains.active.value }}</n-h2>
+  <div v-if="domains.active.value" class="domain-detail">
+    <h2 class="sora-tpg-h1 domain-detail__title">{{ domains.active.value }}</h2>
 
-  <n-divider />
-
-  <n-grid :cols="2" x-gap="24">
-    <n-gi>
+    <div class="domain-detail__container">
       <accounts-list />
-    </n-gi>
-
-    <n-gi>
       <assets-list />
-    </n-gi>
-  </n-grid>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { NGrid, NGi, NH2, NDivider } from 'naive-ui';
 import AccountsList from './AccountsList.vue';
 import AssetsList from './AssetsList.vue';
 import { useDomains } from '@/composables/data';
 
 const domains = useDomains();
 </script>
+
+<style lang="scss">
+.domain-detail {
+  padding: 0 16px;
+  margin: 16px 0;
+
+  &__container {
+    display: grid;
+    grid-gap: 16px;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+
+  &__title {
+    margin-bottom: 16px;
+  }
+}
+</style>

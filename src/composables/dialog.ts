@@ -1,31 +1,48 @@
-import { NButton, useDialog } from 'naive-ui';
-import { h } from 'vue';
+import { ref, watch } from 'vue';
 
-export function useDialogWrapper() {
-  const dialog = useDialog();
+const show = ref(false);
+const text = ref('');
+let resolve: ((value: boolean) => void) | null = null;
 
-  function confirm(text: string): Promise<boolean> {
-    return new Promise((resolve) => {
-      dialog.warning({
-        title: 'Confirm',
-        content: text,
-        positiveText: 'Ok',
+export function useDialog() {
+  function confirm(message: string): Promise<boolean> {
+    show.value = true;
+    text.value = message;
 
-        onClose: () => resolve(false),
-
-        action: () => h(NButton, {
-          type: 'primary',
-          size: 'small',
-          onClick: () => {
-            dialog.destroyAll();
-            resolve(true);
-          },
-        }, () => 'Ok'),
-      });
+    return new Promise(_resolve => {
+      resolve = _resolve;
     });
   }
 
+  function ok() {
+    if (resolve) {
+      resolve(true);
+      resolve = null;
+    }
+
+    show.value = false;
+  }
+
+  function cancel() {
+    show.value = false;
+  }
+
+  watch(show, (value) => {
+    if (!value) {
+      text.value = '';
+
+      if (resolve) {
+        resolve(false);
+        resolve = null;
+      }
+    }
+  });
+
   return {
     confirm,
+    show,
+    text,
+    ok,
+    cancel,
   };
-};
+}

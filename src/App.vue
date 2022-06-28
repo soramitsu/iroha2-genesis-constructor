@@ -1,37 +1,55 @@
 <template>
-  <n-dialog-provider>
-    <n-message-provider>
-      <n-layout content-style="padding: 30px 30px">
-        <n-layout-header>
-          <app-header />
-        </n-layout-header>
-
-        <n-layout-content>
-          <domains-list />
-        </n-layout-content>
-      </n-layout>
-    </n-message-provider>
-  </n-dialog-provider>
+  <s-notifications-provider horizontal="center" vertical="top">
+    <app-header />
+    <domains-list />
+    <domain-detail />
+    <mints-modal />
+    <app-dialog />
+  </s-notifications-provider>
 </template>
 
 <script setup lang="ts">
-import { NLayout, NLayoutContent, NLayoutHeader, NDialogProvider, NMessageProvider } from 'naive-ui';
+import { SNotificationsProvider } from '@soramitsu-ui/ui';
 import DomainsList from '@/components/DomainsList.vue';
 import AppHeader from '@/components/AppHeader.vue';
+import DomainDetail from './components/DomainDetail.vue';
+import MintsModal from './components/MintsModal.vue';
+import AppDialog from './components/AppDialog.vue';
 </script>
 
-<style>
-.n-tree .n-tree-node-content .n-tree-node-content__text {
-  margin-right: 8px;
-  flex-grow: 0;
+<style lang="scss">
+@use '@soramitsu-ui/theme/fonts/Sora';
+@use '@soramitsu-ui/theme/sass' as theme;
+
+@include theme.typography-preset-default;
+
+:root {
+  @include theme.tokens-preset-light;
 }
 
-.n-select {
-  min-width: 200px;
-}
-
-.n-message__content {
+.s-notification-body .sora-tpg-p2 {
+  max-width: calc(100vw - 200px);
   word-wrap: break-word;
-  max-width: 600px;
+}
+
+.sora-tpg-ch2 {
+  color: theme.token-as-var('sys.color.content-tertiary');
+}
+
+.table-row {
+  display: grid;
+  grid-gap: 8px;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: center;
+  box-shadow: inset 0px -1px 0px #F5F7F8;
+  min-height: 48px;
+
+  & > * {
+    margin: 12px 16px;
+  }
+
+  & > button {
+    justify-self: end;
+  }
 }
 </style>

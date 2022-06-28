@@ -48,7 +48,7 @@
 
 <script setup lang="ts">
 import { NModal, NSelect, NInputNumber, NButton, NSpace, NFormItem } from 'naive-ui';
-import { ref, toRefs } from 'vue';
+import { computed, ref } from 'vue';
 import { Mint } from '@/composables/data';
 import { useMintModal } from '@/composables/mint-modal';
 
@@ -57,7 +57,7 @@ type Props = {
 };
 
 const props = defineProps<Props>();
-const { mint } = toRefs(props);
+const mint = computed(() => props.mint);
 const valueEl = ref<InstanceType<typeof NInputNumber> | null>(null);
 const assetEl = ref<InstanceType<typeof NSelect> | null>(null);
 

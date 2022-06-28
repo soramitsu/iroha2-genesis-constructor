@@ -1,4 +1,4 @@
-
+import '@soramitsu-ui/ui/styles';
 import { createApp } from 'vue';
 import App from './App.vue';
 

@@ -17,15 +17,24 @@ export type AccountBlank = {
   signatories?: string[],
 }
 
+export const enum AssetType {
+  Quantity = 'Quantity',
+  BigQuantity = 'BigQuantity',
+  Fixed = 'Fixed',
+  Store = 'Store',
+}
+
 export type Asset = {
   name: string,
   domain: string,
+  type: AssetType,
   key: string,
 }
 
 export type AssetBlank = {
   name: string,
   domain: string,
+  type: AssetType,
 }
 
 export type Mint = {
@@ -100,9 +109,9 @@ function createAccount(blank: AccountBlank) {
   accounts.value.push(makeAccount(blank));
 }
 
-function removeAccount(name: string) {
-  accounts.value = accounts.value.filter(a => a.name !== name);
-  mints.value = mints.value.filter(m => m.account.name !== name);
+function removeAccount(key: string) {
+  accounts.value = accounts.value.filter(a => a.key !== key);
+  mints.value = mints.value.filter(m => m.account.key !== key);
 }
 
 function filterAccounts(domain: string) {
@@ -131,9 +140,9 @@ function createAsset(blank: AssetBlank) {
   assets.value.push(makeAsset(blank));
 }
 
-function removeAsset(name: string) {
-  assets.value = assets.value.filter(a => a.name !== name);
-  mints.value = mints.value.filter(m => m.asset.name !== name);
+function removeAsset(key: string) {
+  assets.value = assets.value.filter(a => a.key !== key);
+  mints.value = mints.value.filter(m => m.asset.key !== key);
 }
 
 function filterAssets(domain: string) {
@@ -162,14 +171,13 @@ function createMint(blank: MintBlank) {
   mints.value.push(makeMint(blank));
 }
 
-function updateMint(key: string, blank: MintBlank) {
-  const index = mints.value.findIndex(m => m.key === key);
+function setMintValue(key: string, value: string) {
+  const mint = mints.value.find(m => m.key === key);
+  if (!mint) return;
 
-  if (index !== -1) {
-    mints.value[index] = makeMint(blank);
-  } else {
-    mints.value.push(makeMint(blank));
-  }
+  if (isNaN(Number(value))) return;
+
+  mint.value = Number(value);
 }
 
 function removeMint(key: string) {
@@ -181,7 +189,7 @@ export function useMints() {
     list: mints,
     create: createMint,
     remove: removeMint,
-    update: updateMint,
+    setValue: setMintValue,
   };
 }
 
@@ -239,7 +247,7 @@ function makeResultData() {
                   name: asset.domain,
                 },
               },
-              value_type: 'Quantity',
+              value_type: asset.type,
               mintable: 'Infinitely',
               metadata: {},
             },
@@ -311,6 +319,7 @@ function handleJsonAsset(asset: any) {
   assets.value.push(makeAsset({
     name: asset.id.name,
     domain: asset.id.domain_id.name,
+    type: asset.value_type,
   }));
 }
 
@@ -322,6 +331,7 @@ function handleJsonMint(mint: any) {
     asset: makeAsset({
       name: asset.name,
       domain: asset.domain_id.name,
+      type: AssetType.Quantity, // set true type after loop
     }),
     account: makeAccount({
       name: account.name,
@@ -329,6 +339,15 @@ function handleJsonMint(mint: any) {
     }),
     value: mint.object.Raw.U32,
   }));
+}
+
+function setValidAssetsForMints() {
+  mints.value.forEach(mint => {
+    const asset = assets.value.find(a => a.key === mint.asset.key);
+    if (!asset) return;
+
+    mint.asset = asset;
+  });
 }
 
 function parseJsonData(data: any) {
@@ -361,6 +380,8 @@ function parseJsonData(data: any) {
 
     console.error('Unknown "isi" item');
   }
+
+  setValidAssetsForMints();
 }
 
 export function useJsonData() {

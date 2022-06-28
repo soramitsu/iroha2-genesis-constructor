@@ -1,6 +1,7 @@
-import { NInputNumber, NSelect, useMessage } from 'naive-ui';
+import { NInputNumber, NSelect } from 'naive-ui';
 import { computed, ref, Ref } from 'vue';
 import { Account, Asset, Mint, useAssets, useMints } from './data';
+import { useNoti } from './noti';
 
 export type MintModalInitData = {
   account: Account,
@@ -14,7 +15,7 @@ export function useMintModal(initData: MintModalInitData) {
 
   const mints = useMints();
   const assets = useAssets();
-  const message = useMessage();
+  const noti = useNoti();
 
   const show = ref(false);
   const MAX_VALUE = 4_294_967_295;
@@ -53,13 +54,13 @@ export function useMintModal(initData: MintModalInitData) {
 
     if (value.value > MAX_VALUE) {
       valueEl.value?.focus();
-      message.error('Value is too big');
+      noti.error('Value is too big');
       return;
     }
 
     if (!Number.isInteger(value.value)) {
       valueEl.value?.focus();
-      message.error('Value must be integer');
+      noti.error('Value must be integer');
       return;
     }
 
