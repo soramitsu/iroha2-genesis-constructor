@@ -70,6 +70,16 @@ function add() {
     return;
   };
 
+  if (!type.value) {
+    noti.error('Asset type is a required field');
+    return;
+  };
+
+  if (type.value === AssetType.Store) {
+    noti.error('Type "Store" is not yet implemented');
+    return;
+  };
+
   assets.create({
     name: name.value,
     domain: domains.active.value,
