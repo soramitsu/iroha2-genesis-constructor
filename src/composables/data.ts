@@ -175,6 +175,11 @@ function setMintValue(key: string, value: string) {
   const mint = mints.value.find(m => m.key === key);
   if (!mint) return;
 
+  if (
+    [AssetType.Quantity, AssetType.BigQuantity].includes(mint.asset.type) &&
+    value.includes('.')
+  ) return;
+
   if (isNaN(Number(value))) return;
 
   mint.value = Number(value);
