@@ -20,5 +20,12 @@ export default defineConfig({
   },
   build: {
     target: 'esnext',
+    minify: !process.env.TAURI_DEBUG ? 'esbuild' : false,
+    sourcemap: !!process.env.TAURI_DEBUG,
   },
+  clearScreen: false,
+  server: {
+    strictPort: true,
+  },
+  envPrefix: ['VITE_', 'TAURI_'],
 });
