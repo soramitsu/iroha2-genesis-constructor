@@ -7,8 +7,8 @@
         <s-text-field v-model="name" label="Account name" @keyup.enter="add" />
 
         <s-radio-group v-model="keyAction" class="accounts-list__radio-group">
-          <s-radio value="copy">Generate keys</s-radio>
           <s-radio value="save">Generate keys and save</s-radio>
+          <s-radio value="copy">Generate keys</s-radio>
           <s-radio value="enter">Enter public key</s-radio>
         </s-radio-group>
 
@@ -46,13 +46,13 @@
 import { computed, ref } from 'vue';
 import BaseTable from './BaseTable.vue';
 import { STextField, SButton, SRadio, SRadioGroup } from '@soramitsu-ui/ui';
-import { useAccounts, useDomains } from '@/composables/data';
+import { useAccounts, useDomains, usePrivateKeys } from '@/composables/data';
 import { useIroha } from '@/composables/iroha';
 import { useDialog } from '@/composables/dialog';
-import { saveFile } from '@/lib/file';
 import { useNoti } from '@/composables/noti';
 import { validateName } from '@/lib/validation';
 import { useMintsModal } from '@/composables/mints-modal';
+import { writeText } from '@tauri-apps/api/clipboard';
 
 const domains = useDomains();
 const accounts = useAccounts();
@@ -60,12 +60,13 @@ const dialog = useDialog();
 const iroha = useIroha();
 const noti = useNoti();
 const mintsModal = useMintsModal();
+const privateKeysData = usePrivateKeys();
 
 const list = computed(() => accounts.filter(domains.active.value));
 
 const name = ref('');
 const publicKey = ref('');
-const keyAction = ref<'save'|'copy'|'enter'>('copy');
+const keyAction = ref<'save'|'copy'|'enter'>('save');
 
 async function remove(key: string) {
   const res = await dialog.confirm('The account and all data associated with it will be deleted');
@@ -73,19 +74,20 @@ async function remove(key: string) {
   accounts.remove(key);
 }
 
-function copyKey(key: string) {
+async function copyKey(key: string) {
   try {
-    navigator.clipboard.writeText(key);
+    await writeText(key);
     noti.success('Private key has been copied');
   } catch {
-    noti.error('Copy to clipboard is not allowed in this browser');
+    noti.error('Copy to clipboard is not allowed');
     noti.warning('Save this private key: ' + key);
   }
 }
 
-function add() {
+async function add() {
   const existance = accounts.list.value
     .some(a => a.name === name.value && domains.active.value === a.domain);
+
   const validation = validateName(name.value, existance);
 
   if (!validation.ok) {
@@ -108,14 +110,13 @@ function add() {
     const keys = iroha.createKeyPair();
 
     if (keyAction.value === 'save') {
-      saveFile(
-        keys.private,
-        `${name.value}__${domains.active.value}.hex.key`,
-        'application/octet-stream',
-      );
+      privateKeysData.add({
+        name: `${name.value}__${domains.active.value}.hex.key`,
+        key: keys.private,
+      });
     }
 
-    copyKey(keys.private);
+    await copyKey(keys.private); // copy anyway
 
     accounts.create({
       name: name.value,
@@ -125,7 +126,7 @@ function add() {
   }
 
   name.value = '';
-  keyAction.value = 'copy';
+  keyAction.value = 'save';
   publicKey.value = '';
 }
 </script>

@@ -3,11 +3,9 @@
     <h1 class="sora-tpg-d2 app-header__title">RawGenesisBlock</h1>
 
     <div class="app-header__buttons">
-      <file-uploader @upload="upload">
-        <s-button type="primary">
-          Open JSON
-        </s-button>
-      </file-uploader>
+      <s-button type="primary" @click="open">
+        Open JSON
+      </s-button>
 
       <s-button type="primary" @click="copy">
         Copy JSON
@@ -22,39 +20,44 @@
 
 <script setup lang="ts">
 import { SButton } from '@soramitsu-ui/ui';
-import FileUploader from './FileUploader.vue';
-import { useDomains, useJsonData } from '@/composables/data';
-import { readFile, saveFile } from '@/lib/file';
+import { useDomains, useData, CommandStatus } from '@/composables/data';
 import { useDialog } from '@/composables/dialog';
 import { useNoti } from '@/composables/noti';
 
-const data = useJsonData();
+const data = useData();
 const dialog = useDialog();
 const noti = useNoti();
 const domains = useDomains();
 
-async function upload(file: File) {
+async function open() {
   if (domains.list.value.length) {
     const res = await dialog.confirm('Active data will be deleted and replaced with the data from the file');
     if (!res) return;
   }
 
-  readFile(file, 'application/json')
-    .then(data.set)
-    .catch((e: Error) => noti.error(e.message));
+  const res = await data.open();
+  switch (res) {
+    case CommandStatus.Done: return noti.success('File successfully opened');
+    case CommandStatus.Failed: return noti.error('Failed to read file');
+    default: break;
+  }
 }
 
-function save() {
-  saveFile(data.get(), 'genesis.json', 'application/json');
-  noti.success('Data has been copied');
+async function save() {
+  const res = await data.save();
+  switch (res) {
+    case CommandStatus.Done: return noti.success('Data has been saved');
+    case CommandStatus.Failed: return noti.error('Failed to save data');
+    default: break;
+  }
 }
 
-function copy() {
-  try {
-    navigator.clipboard.writeText(data.get());
-    noti.success('Data has been copied');
-  } catch {
-    noti.error('Copy to clipboard is not allowed in this browser');
+async function copy() {
+  const res = await data.copy();
+  switch (res) {
+    case CommandStatus.Done: return noti.success('Data has been copied');
+    case CommandStatus.Failed: return noti.error('Failed to generate json');
+    default: break;
   }
 }
 

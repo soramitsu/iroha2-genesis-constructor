@@ -5,7 +5,7 @@ specifiers:
   '@iroha2/crypto-target-web': ^0.1.1
   '@soramitsu-ui/icons': ^0.1.0
   '@soramitsu-ui/theme': ^0.3.0
-  '@soramitsu-ui/ui': ^0.5.0
+  '@soramitsu-ui/ui': ^0.6.1
   '@tauri-apps/api': ^1.0.2
   '@tauri-apps/cli': ^1.0.5
   '@types/body-scroll-lock': ^3.1.0
@@ -35,7 +35,7 @@ dependencies:
   '@iroha2/crypto-target-web': 0.1.1
   '@soramitsu-ui/icons': 0.1.0
   '@soramitsu-ui/theme': 0.3.0
-  '@soramitsu-ui/ui': 0.5.0
+  '@soramitsu-ui/ui': 0.6.1
   '@tauri-apps/api': 1.0.2
   vite-svg-loader: 3.4.0
   vue: 3.2.37
@@ -204,8 +204,8 @@ packages:
       fastq: 1.13.0
     dev: true
 
-  /@popperjs/core/2.11.5:
-    resolution: {integrity: sha512-9X2obfABZuDVLCgPK9aX0a/x4jaOEweTTWE2+9sr0Qqqevj2Uv5XorvusThmc9XGYpS9yI+fhh8RTafBtGposw==}
+  /@popperjs/core/2.11.6:
+    resolution: {integrity: sha512-50/17A98tWUfQ176raKiOGXuYpLyyVMkxxG6oylzL3BPOlA6ADGdK7EYunSa4I064xerltq9TGXs8HmOk5E+vw==}
     dev: false
 
   /@soramitsu-ui/icons/0.1.0:
@@ -218,12 +218,11 @@ packages:
       windicss: 3.5.6
     dev: false
 
-  /@soramitsu-ui/ui/0.5.0:
-    resolution: {integrity: sha512-kXeuULeHjRMTdxdGoifa7IYQFdv6B2PsBVF17dWDshEhbYBVd0jthsZDB6HhMQGbwBEJAGd+iHcpk5Km2F2RCQ==}
+  /@soramitsu-ui/ui/0.6.1:
+    resolution: {integrity: sha512-Nn62aKz+npbYThxm5nFl9Z5JDikK4r6M3nF9LNgkrHvWiTT0sv4oOuj8q83DGrnJ0m99ORt39Rh2mz3IPgr6rQ==}
     dependencies:
-      '@popperjs/core': 2.11.5
+      '@popperjs/core': 2.11.6
       '@vueuse/core': 7.7.1_vue@3.2.37
-      body-scroll-lock: 4.0.0-beta.0
       focus-trap: 6.9.4
       jsoneditor: 9.9.0
       lodash: 4.17.21
@@ -665,7 +664,7 @@ packages:
     dependencies:
       '@vueuse/shared': 7.7.1_vue@3.2.37
       vue: 3.2.37
-      vue-demi: 0.13.6_vue@3.2.37
+      vue-demi: 0.13.7_vue@3.2.37
     dev: false
 
   /@vueuse/shared/7.7.1_vue@3.2.37:
@@ -680,11 +679,11 @@ packages:
         optional: true
     dependencies:
       vue: 3.2.37
-      vue-demi: 0.13.6_vue@3.2.37
+      vue-demi: 0.13.7_vue@3.2.37
     dev: false
 
-  /ace-builds/1.8.1:
-    resolution: {integrity: sha512-wjEQ4khMQYg9FfdEDoOtqdoHwcwFL48H0VB3te5b5A3eqHwxsTw8IX6+xzfisgborIb8dYU+1y9tcmtGFrCPIg==}
+  /ace-builds/1.9.5:
+    resolution: {integrity: sha512-6iVEUPfqiKIGKsA63InrUhRRASmfuGnJCUBzkz/pL1BCPPEjasBp6fBA7mj4ovihICouopYYZaAKYhg6zypAwg==}
     dev: false
 
   /acorn-jsx/5.3.2_acorn@7.4.1:
@@ -828,10 +827,6 @@ packages:
     resolution: {integrity: sha512-jDctJ/IVQbZoJykoeHbhXpOlNBqGNcwXJKJog42E5HDPUwQTSdjCHdihjj0DlnheQ7blbT6dHOafNAiS8ooQKA==}
     engines: {node: '>=8'}
     dev: true
-
-  /body-scroll-lock/4.0.0-beta.0:
-    resolution: {integrity: sha512-a7tP5+0Mw3YlUJcGAKUqIBkYYGlYxk2fnCasq/FUph1hadxlTRjF+gAcZksxANnaMnALjxEddmSi/H3OR8ugcQ==}
-    dev: false
 
   /boolbase/1.0.0:
     resolution: {integrity: sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==}
@@ -2055,7 +2050,7 @@ packages:
   /jsoneditor/9.9.0:
     resolution: {integrity: sha512-NHJhyaqcc5U33ah6dEcd0S9b14Auocpe9nydvC9ui7Uq/vjEFnsd7ot6O9Jqwv53B7DmHFUWq5cT4qeWh4MEoA==}
     dependencies:
-      ace-builds: 1.8.1
+      ace-builds: 1.9.5
       ajv: 6.12.6
       javascript-natural-sort: 0.7.1
       jmespath: 0.16.0
@@ -2967,8 +2962,8 @@ packages:
       vscode-typescript-languageservice: 0.29.8
     dev: true
 
-  /vue-demi/0.13.6_vue@3.2.37:
-    resolution: {integrity: sha512-02NYpxgyGE2kKGegRPYlNQSL1UWfA/+JqvzhGCOYjhfbLWXU5QQX0+9pAm/R2sCOPKr5NBxVIab7fvFU0B1RxQ==}
+  /vue-demi/0.13.7_vue@3.2.37:
+    resolution: {integrity: sha512-hbhlvpx1gFW3TB5HxJ0mNxyA9Jh5iQt409taOs6zkhpvfJ7YzLs1rsLufJmDsjH5PI1cOyfikY1fE/meyHfU5A==}
     engines: {node: '>=12'}
     hasBin: true
     requiresBuild: true

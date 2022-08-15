@@ -1,4 +1,8 @@
+/* eslint-disable camelcase */
 import { ref } from 'vue';
+import { invoke } from '@tauri-apps/api/tauri';
+import { writeText } from '@tauri-apps/api/clipboard';
+import { choiseDir, choiseFile } from '@/lib/file';
 
 export type Domain = {
   name: string,
@@ -27,27 +31,45 @@ export const enum AssetType {
 export type Asset = {
   name: string,
   domain: string,
-  type: AssetType,
+  value_type: AssetType,
   key: string,
 }
 
 export type AssetBlank = {
   name: string,
   domain: string,
-  type: AssetType,
+  value_type: AssetType,
 }
 
 export type Mint = {
-  value: number,
+  value: string,
   asset: Asset,
   account: Account,
   key: string,
 }
 
 export type MintBlank = {
-  value: number,
+  value: string,
   asset: Asset,
   account: Account,
+}
+
+export type PrivateKey = {
+  key: string,
+  name: string,
+}
+
+export type GenesisBlock = {
+  domains: Domain[],
+  accounts: Account[],
+  assets: Asset[],
+  mints: Mint[],
+}
+
+export type SaveGenesisRequest = {
+  dir: string,
+  private_keys: PrivateKey[],
+  block: GenesisBlock,
 }
 
 const domains = ref<Domain[]>([]);
@@ -55,13 +77,15 @@ const activeDomainName = ref<string>('');
 const accounts = ref<Account[]>([]);
 const assets = ref<Asset[]>([]);
 const mints = ref<Mint[]>([]);
+const privateKeys = ref<PrivateKey[]>([]);
 
-function clearAll() {
+export function clearAll() {
   domains.value = [];
-  activeDomainName.value = '';
   accounts.value = [];
   assets.value = [];
   mints.value = [];
+  privateKeys.value = [];
+  activeDomainName.value = '';
 }
 
 function resetActiveDomain() {
@@ -175,14 +199,7 @@ function setMintValue(key: string, value: string) {
   const mint = mints.value.find(m => m.key === key);
   if (!mint) return;
 
-  if (
-    [AssetType.Quantity, AssetType.BigQuantity].includes(mint.asset.type) &&
-    value.includes('.')
-  ) return;
-
-  if (isNaN(Number(value))) return;
-
-  mint.value = Number(value);
+  mint.value = value;
 }
 
 function removeMint(key: string) {
@@ -198,223 +215,87 @@ export function useMints() {
   };
 }
 
-// ---result---
+// ---private keys ---
 
-function makeResultData() {
-  const domainTransactions = domains.value.map(domain => ({
-    Register: {
-      object: {
-        Raw: {
-          Identifiable: {
-            NewDomain: {
-              id: {
-                name: domain.name,
-              },
-              logo: null,
-              metadata: {},
-            },
-          },
-        },
-      },
-    },
-  }));
+function addPrivateKey(blank: PrivateKey) {
+  privateKeys.value?.push(blank);
+}
 
-  const accountTransactions = accounts.value.map(account => ({
-    Register: {
-      object: {
-        Raw: {
-          Identifiable: {
-            NewAccount: {
-              id: {
-                name: account.name,
-                domain_id: {
-                  name: account.domain,
-                },
-              },
-              signatories: account.signatories,
-              metadata: {},
-            },
-          },
-        },
-      },
-    },
-  }));
-
-  const assetTransactions = assets.value.map(asset => ({
-    Register: {
-      object: {
-        Raw: {
-          Identifiable: {
-            NewAssetDefinition: {
-              id: {
-                name: asset.name,
-                domain_id: {
-                  name: asset.domain,
-                },
-              },
-              value_type: asset.type,
-              mintable: 'Infinitely',
-              metadata: {},
-            },
-          },
-        },
-      },
-    },
-  }));
-
-  const mintTransactions = mints.value.map(mint => ({
-    Mint: {
-      object: {
-        Raw: {
-          U32: mint.value,
-        },
-      },
-      destination_id: {
-        Raw: {
-          Id: {
-            AssetId: {
-              definition_id: {
-                name: mint.asset.name,
-                domain_id: {
-                  name: mint.asset.domain,
-                },
-              },
-              account_id: {
-                name: mint.account.name,
-                domain_id: {
-                  name: mint.account.domain,
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  }));
-
+export function usePrivateKeys() {
   return {
-    transactions: [
-      {
-        isi: [
-          ...domainTransactions,
-          ...accountTransactions,
-          ...assetTransactions,
-          ...mintTransactions,
-        ],
-      },
-    ],
+    add: addPrivateKey,
   };
 }
 
-function handleJsonDomain(domain: any) {
-  domains.value.push({
-    name: domain.id.name,
-  });
+// ---data---
+
+export const enum CommandStatus {
+  Done = 'done',
+  Сanceled = 'canceled',
+  Failed = 'failed',
 }
 
-function handleJsonAccount(account: any) {
-  accounts.value.push(makeAccount({
-    name: account.id.name,
-    domain: account.id.domain_id.name,
-    signatories: account.signatories,
-  }));
+async function saveGenesis(): Promise<CommandStatus> {
+  const dir = await choiseDir();
+  if (!dir) return CommandStatus.Сanceled;
+
+  const dto: SaveGenesisRequest = {
+    dir,
+    private_keys: privateKeys.value,
+    block: {
+      domains: domains.value,
+      accounts: accounts.value,
+      assets: assets.value,
+      mints: mints.value,
+    },
+  };
+
+  const res = await invoke('save_genesis', { dto });
+  return res ? CommandStatus.Done : CommandStatus.Failed;
 }
 
-function handleJsonAsset(asset: any) {
-  assets.value.push(makeAsset({
-    name: asset.id.name,
-    domain: asset.id.domain_id.name,
-    type: asset.value_type,
-  }));
-}
+async function openGenesis(): Promise<CommandStatus> {
+  const path = await choiseFile();
+  if (!path) return CommandStatus.Сanceled;
 
-function handleJsonMint(mint: any) {
-  const asset = mint.destination_id.Raw.Id.AssetId.definition_id;
-  const account = mint.destination_id.Raw.Id.AssetId.account_id;
+  const block = await invoke<GenesisBlock>('open_genesis', { path });
 
-  mints.value.push(makeMint({
-    asset: makeAsset({
-      name: asset.name,
-      domain: asset.domain_id.name,
-      type: AssetType.Quantity, // set true type after loop
-    }),
-    account: makeAccount({
-      name: account.name,
-      domain: account.domain_id.name,
-    }),
-    value: mint.object.Raw.U32,
-  }));
-}
-
-function setValidAssetsForMints() {
-  mints.value.forEach(mint => {
-    const asset = assets.value.find(a => a.key === mint.asset.key);
-    if (!asset) return;
-
-    mint.asset = asset;
-  });
-}
-
-function parseJsonData(data: any) {
-  for (const item of data.transactions[0].isi) {
-    if (item.Mint) {
-      handleJsonMint(item.Mint);
-      continue;
-    }
-
-    if (item.Register) {
-      const { Identifiable } = item.Register.object.Raw;
-
-      if (Identifiable.NewDomain) {
-        handleJsonDomain(Identifiable.NewDomain);
-        continue;
-      }
-
-      if (Identifiable.NewAccount) {
-        handleJsonAccount(Identifiable.NewAccount);
-        continue;
-      }
-
-      if (Identifiable.NewAssetDefinition) {
-        handleJsonAsset(Identifiable.NewAssetDefinition);
-        continue;
-      }
-
-      console.error('Unknown "item.Register.object.Raw.Identifiable"');
-    }
-
-    console.error('Unknown "isi" item');
+  if (!block) {
+    return CommandStatus.Failed;
   }
 
-  setValidAssetsForMints();
+  domains.value = block.domains;
+  accounts.value = block.accounts;
+  assets.value = block.assets;
+  mints.value = block.mints;
+  privateKeys.value = [];
+
+  resetActiveDomain();
+
+  return CommandStatus.Done;
 }
 
-export function useJsonData() {
-  return {
-    get: () => JSON.stringify(makeResultData(), null, 2),
-
-    set: (json: string) => {
-      const backup = {
-        domains: domains.value,
-        accounts: accounts.value,
-        assets: assets.value,
-        mints: mints.value,
-        activeDomainName: activeDomainName.value,
-      };
-
-      try {
-        clearAll();
-        parseJsonData(JSON.parse(json));
-        resetActiveDomain();
-      } catch (e) {
-        domains.value = backup.domains;
-        accounts.value = backup.accounts;
-        assets.value = backup.assets;
-        mints.value = backup.mints;
-        activeDomainName.value = backup.activeDomainName;
-
-        throw e;
-      }
+async function copyGenesis(): Promise<CommandStatus> {
+  const json = await invoke<string>('make_genesis', {
+    block: {
+      domains: domains.value,
+      accounts: accounts.value,
+      assets: assets.value,
+      mints: mints.value,
     },
+  });
+
+  if (!json) return CommandStatus.Failed;
+
+  await writeText(json);
+
+  return CommandStatus.Done;
+}
+
+export function useData() {
+  return {
+    open: openGenesis,
+    save: saveGenesis,
+    copy: copyGenesis,
   };
 }

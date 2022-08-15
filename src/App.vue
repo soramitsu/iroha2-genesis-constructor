@@ -1,20 +1,20 @@
 <template>
   <s-notifications-provider horizontal="center" vertical="top">
-    <app-header />
+    <the-header />
     <domains-list />
     <domain-detail />
     <mints-modal />
-    <app-dialog />
+    <the-dialog />
   </s-notifications-provider>
 </template>
 
 <script setup lang="ts">
 import { SNotificationsProvider } from '@soramitsu-ui/ui';
 import DomainsList from '@/components/DomainsList.vue';
-import AppHeader from '@/components/AppHeader.vue';
+import TheHeader from '@/components/TheHeader.vue';
 import DomainDetail from './components/DomainDetail.vue';
 import MintsModal from './components/MintsModal.vue';
-import AppDialog from './components/AppDialog.vue';
+import TheDialog from './components/TheDialog.vue';
 </script>
 
 <style lang="scss">

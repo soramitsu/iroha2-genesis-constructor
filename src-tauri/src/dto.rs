@@ -21,30 +21,7 @@ use iroha_data_model::{
 
 use serde::{Serialize, Deserialize};
 
-fn asset_type_to_string(t: AssetValueType) -> String {
-    let str = match t {
-        AssetValueType::Quantity => "Quantity",
-        AssetValueType::Fixed => "Fixed",
-        AssetValueType::BigQuantity => "BigQuantity",
-        AssetValueType::Store => "Store",
-    };
-
-    str.to_string()
-}
-
-fn asset_type_from_string(string: String) -> AssetValueType {
-    match string.as_str() {
-        "Fixed" => AssetValueType::Fixed,
-        "BigQuantity" => AssetValueType::BigQuantity,
-        "Store" => AssetValueType::Store,
-        _ => AssetValueType::Quantity,
-    }
-}
-
-#[inline]
-fn parse_string<T>(s: String) -> Result<T, ()> where T: FromStr {
-    s.parse::<T>().map_err(|_| ())
-}
+use crate::utils::{parse_string, asset_type_to_string, asset_type_from_string};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct DomainDto {
@@ -257,16 +234,16 @@ impl TryInto<MintBox> for MintDto {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-pub struct TransportDto {
+pub struct BlockDto {
     domains: Vec<DomainDto>,
     accounts: Vec<AccountDto>,
     assets: Vec<AssetDto>,
     mints: Vec<MintDto>
 }
 
-impl From<RawGenesisBlock> for TransportDto {
+impl From<RawGenesisBlock> for BlockDto {
     fn from(block: RawGenesisBlock) -> Self {
-        let mut transport = TransportDto {
+        let mut transport = BlockDto {
             domains: Vec::new(),
             accounts: Vec::new(),
             assets: Vec::new(),
@@ -312,7 +289,7 @@ impl From<RawGenesisBlock> for TransportDto {
     }
 }
 
-impl TryInto<RawGenesisBlock> for TransportDto {
+impl TryInto<RawGenesisBlock> for BlockDto {
     type Error = ();
 
     fn try_into(self) -> Result<RawGenesisBlock, ()> {
@@ -350,5 +327,17 @@ impl TryInto<RawGenesisBlock> for TransportDto {
 
         Ok(block)
     }
+}
+#[derive(Debug, Deserialize, Serialize)]
 
+pub struct PubKeyDto {
+    pub key: String,
+    pub name: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct SaveGenesisRequestDto {
+    pub dir: String,
+    pub block: BlockDto,
+    pub private_keys: Vec<PubKeyDto>
 }

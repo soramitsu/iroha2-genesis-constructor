@@ -10,48 +10,18 @@
       />
 
       <div class="mints-modal__grid">
-        <div v-for="item in list" :key="item.key" class="mints-modal__card">
-          <div class="mints-modal__card-top">
-            <div>
-              <div>
-                <span class="sora-tpg-ch2">Name: </span>
-                <span class="sora-tpg-p3">{{ item.asset.key }}</span>
-              </div>
-
-              <div>
-                <span class="sora-tpg-ch2">Type: </span>
-                <span class="sora-tpg-p3">{{ item.asset.type }}</span>
-              </div>
-            </div>
-
-            <s-button
-              type="action"
-              size="sm"
-              @click="mints.remove(item.key)"
-            >
-              <template #icon>
-                <icon-close />
-              </template>
-            </s-button>
-          </div>
-
-          <s-text-field
-            label="Value"
-            :model-value="String(item.value)"
-            @update:model-value="value => mints.setValue(item.key, value)"
-          />
-        </div>
+        <mint-card v-for="item in list" :key="item.key" :item="item" />
       </div>
     </s-modal-card>
   </s-modal>
 </template>
 
 <script setup lang="ts">
-import { SModal, SModalCard, SDropdown, SelectSize, STextField, SButton } from '@soramitsu-ui/ui';
-import IconClose from '@soramitsu-ui/icons/icomoon/basic-close-24.svg';
+import { SModal, SModalCard, SDropdown, SelectSize } from '@soramitsu-ui/ui';
 import { useMintsModal } from '@/composables/mints-modal';
 import { Account, Asset, useAssets, useMints } from '@/composables/data';
 import { computed } from 'vue';
+import MintCard from './MintCard.vue';
 
 const modal = useMintsModal();
 const mints = useMints();
@@ -65,7 +35,7 @@ const options = computed(() => assets.list.value
 
 function add(assetKey: string) {
   mints.create({
-    value: 0,
+    value: '0',
     account: modal.account.value as Account,
     asset: assets.list.value.find(a => a.key === assetKey) as Asset,
   });
@@ -79,18 +49,6 @@ function add(assetKey: string) {
     grid-template-columns: 400px 400px 400px;
     grid-gap: 16px;
     margin-top: 16px;
-  }
-
-  &__card {
-    border: 1px solid #DDE0E1;
-    border-radius: 12px;
-    padding: 12px 16px;
-
-    &-top {
-      display: grid;
-      grid-gap: 16px;
-      grid-template-columns: 1fr auto;
-    }
   }
 }
 </style>

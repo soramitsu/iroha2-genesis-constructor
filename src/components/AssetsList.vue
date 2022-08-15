@@ -27,7 +27,7 @@
 
       <div v-for="item in list" :key="item.key" class="table-row">
         <span class="sora-tpg-p3">{{ item.name }}</span>
-        <span class="sora-tpg-p3">{{ item.type }}</span>
+        <span class="sora-tpg-p3">{{ item.value_type }}</span>
         <s-button size="sm" @click="remove(item.key)">Remove</s-button>
       </div>
     </template>
@@ -83,7 +83,7 @@ function add() {
   assets.create({
     name: name.value,
     domain: domains.active.value,
-    type: type.value,
+    value_type: type.value,
   });
 
   name.value = '';
