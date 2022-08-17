@@ -1,5 +1,5 @@
 {
-  "name": "genesis-constructor",
+  "name": "iroha2-genesis-constructor",
   "private": true,
   "version": "0.1.0",
   "scripts": {

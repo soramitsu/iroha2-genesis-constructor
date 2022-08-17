@@ -7,8 +7,8 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "iroha-genesis-constructor",
-    "version": "0.1.0"
+    "productName": "iroha2-genesis-constructor",
+    "version": "../package.json"
   },
   "tauri": {
     "allowlist": {
@@ -19,7 +19,10 @@
       "category": "DeveloperTool",
       "copyright": "",
       "deb": {
-        "depends": []
+        "depends": [],
+        "files": {
+          "/usr/lib/README.md": "../README.md"
+        }
       },
       "externalBin": [],
       "icon": [
@@ -29,7 +32,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
+      "identifier": "iroha2-genesis-constructor",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
@@ -55,11 +58,13 @@
     },
     "windows": [
       {
-        "fullscreen": false,
-        "height": 750,
-        "resizable": true,
         "title": "Iroha2 Genesis Constructor",
-        "width": 1300
+        "fullscreen": false,
+        "resizable": true,
+        "height": 750,
+        "minHeight": 750,
+        "width": 1300,
+        "minWidth": 1300
       }
     ]
   }
