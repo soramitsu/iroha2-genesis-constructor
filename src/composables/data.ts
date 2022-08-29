@@ -79,15 +79,6 @@ const assets = ref<Asset[]>([]);
 const mints = ref<Mint[]>([]);
 const privateKeys = ref<PrivateKey[]>([]);
 
-export function clearAll() {
-  domains.value = [];
-  accounts.value = [];
-  assets.value = [];
-  mints.value = [];
-  privateKeys.value = [];
-  activeDomainName.value = '';
-}
-
 function resetActiveDomain() {
   if (domains.value.length) {
     activeDomainName.value = domains.value[0].name;
@@ -292,10 +283,20 @@ async function copyGenesis(): Promise<CommandStatus> {
   return CommandStatus.Done;
 }
 
+function clearAll(): void {
+  domains.value = [];
+  accounts.value = [];
+  assets.value = [];
+  mints.value = [];
+  privateKeys.value = [];
+  activeDomainName.value = '';
+}
+
 export function useData() {
   return {
     open: openGenesis,
     save: saveGenesis,
     copy: copyGenesis,
+    clear: clearAll,
   };
 }

@@ -3,6 +3,10 @@
     <h1 class="sora-tpg-d2 app-header__title">RawGenesisBlock</h1>
 
     <div class="app-header__buttons">
+      <s-button type="primary" @click="clear">
+        Clear data
+      </s-button>
+
       <s-button type="primary" @click="open">
         Open JSON
       </s-button>
@@ -41,6 +45,13 @@ async function open() {
     case CommandStatus.Failed: return noti.error('Failed to read file');
     default: break;
   }
+}
+
+async function clear() {
+  const res = await dialog.confirm('Data will be deleted');
+  if (!res) return;
+
+  data.clear();
 }
 
 async function save() {
